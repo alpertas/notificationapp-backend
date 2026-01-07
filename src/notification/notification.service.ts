@@ -10,7 +10,24 @@ export class NotificationService {
     @Inject(FIREBASE_ADMIN) private readonly firebase: admin.app.App,
   ) {}
 
-  async createNotification(userId: string, title: string, body: string) {
+  async ensureUserExists(userId: string, email?: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      await this.prisma.user.create({
+        data: {
+          id: userId,
+          email: email || `placeholder-${userId}@notification.app`,
+        },
+      });
+    }
+  }
+
+  async createNotification(userId: string, title: string, body: string, email?: string) {
+    await this.ensureUserExists(userId, email);
+
     return this.prisma.notification.create({
       data: {
         userId,
@@ -21,7 +38,9 @@ export class NotificationService {
     });
   }
 
-  async sendNotification(userId: string, title: string, body: string) {
+  async sendNotification(userId: string, title: string, body: string, email?: string) {
+    await this.ensureUserExists(userId, email);
+
     // 1. Save logic
     const notification = await this.prisma.notification.create({
       data: {

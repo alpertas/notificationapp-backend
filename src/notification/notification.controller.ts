@@ -16,11 +16,12 @@ export class NotificationController {
   @ApiResponse({ status: 201, description: 'Notification created with PENDING status' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async createOnly(@Req() req: any, @Body() createNotificationDto: CreateNotificationDto) {
-    const { uid } = req.user;
+    const { uid, email } = req.user;
     return this.notificationService.createNotification(
       uid,
       createNotificationDto.title,
       createNotificationDto.body,
+      email,
     );
   }
 
@@ -29,11 +30,12 @@ export class NotificationController {
   @ApiResponse({ status: 201, description: 'Notification sent and saved' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async send(@Req() req: any, @Body() createNotificationDto: CreateNotificationDto) {
-    const { uid } = req.user;
+    const { uid, email } = req.user;
     return this.notificationService.sendNotification(
       uid,
       createNotificationDto.title,
       createNotificationDto.body,
+      email,
     );
   }
 
