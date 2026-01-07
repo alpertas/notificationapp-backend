@@ -10,7 +10,7 @@ export class NotificationService {
     @Inject(FIREBASE_ADMIN) private readonly firebase: admin.app.App,
   ) {}
 
-  async ensureUserExists(userId: string, email?: string) {
+  private async ensureUserExists(userId: string, email?: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -19,7 +19,7 @@ export class NotificationService {
       await this.prisma.user.create({
         data: {
           id: userId,
-          email: email || `placeholder-${userId}@notification.app`,
+          email: email || `new_user_${userId}@placeholder.com`,
         },
       });
     }
