@@ -1,98 +1,121 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Notification Center API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+![NestJS](https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
+![Firebase](https://img.shields.io/badge/firebase-%23039BE5.svg?style=for-the-badge&logo=firebase)
+![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)
+![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Introduction
 
-## Description
+**Notification Center API** is a robust backend service designed to manage and deliver push notifications with high reliability. Built using **NestJS** and following strictly typed **Clean Architecture** principles, this API serves as the secure bridge between your client applications and **Firebase Cloud Messaging (FCM)**.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+It ensures seamless user synchronization, secure authentication, and real-time message delivery, solving common consistency challenges in distributed systems.
 
-## Project setup
+## Key Features
 
-```bash
-$ npm install
-```
+-   **🛡️ Secure Endpoints:** Engineered with a custom `AuthGuard` that validates strictly typed Firebase ID Tokens. Unauthenticated access is rejected at the door.
+-   **🔄 Defensive User Sync:** Implements a "fail-safe" synchronization strategy. If a notification is requested for a user who hasn't completed the initial handshake, the system automatically creates a placeholder user record, preventing Foreign Key (`P2003`) violations and ensuring the notification flow never breaks.
+-   **🚀 FCM Push Notifications:** Integrated directly with the Firebase Admin SDK to provide low-latency, real-time push notifications to iOS and Android devices.
+-   **📑 Interactive Documentation:** Fully documented with **OpenAPI (Swagger)**. Developers can explore schemas, DTOs, and test all endpoints directly from the browser without needing external tools like Postman.
 
-## Compile and run the project
+## Tech Stack
 
-```bash
-# development
-$ npm run start
+-   **Framework:** [NestJS](https://nestjs.com/) (Node.js) - *Efficiency & Scalability*
+-   **Language:** TypeScript - *Type Safety*
+-   **Database:** SQLite3 - *Lightweight & Fast*
+-   **ORM:** [Prisma Client](https://www.prisma.io/) - *Type-safe Database Access*
+-   **Cloud Services:** Firebase Admin SDK - *Auth & Cloud Messaging*
+-   **Documentation:** Swagger UI (`@nestjs/swagger`)
 
-# watch mode
-$ npm run start:dev
+## Project Structure
 
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
+The project follows a modular structure where each domain is encapsulated in its own module:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+src/
+├── app.module.ts              # Root application module
+├── main.ts                    # Entry point & Global ValidationPipe
+├── auth/                      # Authentication Domain
+│   ├── dto/                   # Data Transfer Objects (SyncTokenDto)
+│   ├── auth.guard.ts          # Firebase Bearer Token Guard
+│   ├── auth.controller.ts     # User Sync Endpoints
+│   └── auth.service.ts        # Business Logic
+├── notification/              # Notification Domain
+│   ├── dto/                   # CreateNotificationDto
+│   ├── notification.controller.ts # API Endpoints (Send/Create)
+│   └── notification.service.ts    # Logic & FCM Integration
+├── firebase/                  # Shared Firebase Module
+│   └── firebase.module.ts     # Admin SDK Configuration
+└── prisma/                    # Database Module
+    └── prisma.service.ts      # Connection Management
 ```
 
-## Deployment
+## Installation & Setup
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Follow these steps to get the server running locally.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 1. Clone the repository
+```bash
+git clone https://github.com/your-username/notification-center-api.git
+cd notification-center-api
+```
+
+### 2. Install Dependencies
+```bash
+npm install
+```
+
+### 3. Environment Configuration
+Create a `.env` file in the root directory and configure the following variables:
+
+```env
+# Database connection string for SQLite
+DATABASE_URL="file:./dev.db"
+
+# Path to your Firebase Service Account JSON
+GOOGLE_APPLICATION_CREDENTIALS="./service-account.json"
+
+# Server Port
+PORT=3000
+```
+
+> **Note:** You must download your `service-account.json` from the [Firebase Console](https://console.firebase.google.com/) (Project Settings > Service Accounts) and place it in the project root.
+
+### 4. Database Migration
+Initialize the SQLite database and generate the Prisma Client types:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npx prisma migrate dev --name init
+npx prisma generate
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 5. Running the Application
 
-## Resources
+**Development Mode:**
+```bash
+npm run start:dev
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+**Production Mode:**
+```bash
+npm run build
+npm run start:prod
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## API Documentation
 
-## Support
+Once the server is running, you can access the interactive Swagger documentation at:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+👉 **http://localhost:3000/api**
 
-## Stay in touch
+### Available Endpoints
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+-   **POST** `/auth/sync-token`: Sync FCM token for a user.
+-   **POST** `/notifications`: Create a notification in the database (Status: PENDING).
+-   **POST** `/notifications/send`: Create and immediately trigger a Push Notification via FCM (Status: SENT).
+-   **GET** `/notifications`: Retrieve notification history for the logged-in user.
 
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+*Designed with modularity and developer experience in mind.*
