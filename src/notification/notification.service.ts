@@ -10,6 +10,17 @@ export class NotificationService {
     @Inject(FIREBASE_ADMIN) private readonly firebase: admin.app.App,
   ) {}
 
+  async createNotification(userId: string, title: string, body: string) {
+    return this.prisma.notification.create({
+      data: {
+        userId,
+        title,
+        body,
+        deliveryStatus: 'PENDING',
+      },
+    });
+  }
+
   async sendNotification(userId: string, title: string, body: string) {
     // 1. Save logic
     const notification = await this.prisma.notification.create({
