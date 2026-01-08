@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, MinLength, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateNotificationDto {
@@ -8,6 +8,8 @@ export class CreateNotificationDto {
   })
   @IsString()
   @IsNotEmpty()
+  @MinLength(3, { message: 'Title must be at least 3 characters' })
+  @MaxLength(50, { message: 'Title must be at most 50 characters' })
   title: string;
 
   @ApiProperty({
@@ -16,5 +18,7 @@ export class CreateNotificationDto {
   })
   @IsString()
   @IsNotEmpty()
+  @MinLength(10, { message: 'Body must be at least 10 characters' })
+  @MaxLength(250, { message: 'Body must be at most 250 characters' })
   body: string;
 }
