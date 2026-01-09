@@ -32,7 +32,7 @@ graph LR
 
 ---
 
-## 🌟 API Documentation (The Showoff)
+## 🌟 API Documentation
 
 We believe in **Interactive Documentation**. You don't need external tools to test our API.
 
