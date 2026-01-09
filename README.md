@@ -148,3 +148,15 @@ src/
 
 ---
 
+## 🔮 Roadmap & Future Improvements
+
+To make this project even more robust, here are the planned features:
+
+- [ ] **🧪 Comprehensive Testing:** specialized Unit and E2E tests for all modules.
+- [ ] **📊 Analytics Dashboard:** Visualizing delivery success rates and user engagement.
+- [ ] **⏳ User Scheduling:** Ability to schedule notifications for a future date/time.
+- [ ] **🌍 Localization:** Multi-language support for notification bodies based on user preference.
+- [ ] **📧 Multi-Channel:** Expanding beyond FCM to include Email (AWS SES) and SMS (Twilio).
+
+---
+
