@@ -42,7 +42,7 @@ The entire API is documented using **Swagger (OpenAPI)**. You can visualize sche
 
 👉 **Live Demo:** [http://localhost:3000/api](http://localhost:3000/api)
 
-![Swagger UI Screenshot]([SWAGGER_SCREENSHOT])
+<img width="1470" height="833" alt="Swagger UI Screenshot" src="https://github.com/user-attachments/assets/9d897717-15e3-4f24-97c6-36e9818d44c9" />
 
 > **Note:** All endpoints are protected. You must provide a valid Firebase ID Token via the "Authorize" button (Bearer Auth) to interact with the API.
 
@@ -149,4 +149,3 @@ src/
 
 ---
 
-_Crafted with ❤️ by a Senior Backend Developer_
