@@ -1,66 +1,90 @@
-# Notification Center API
+# Notification Management API
 
 ![NestJS](https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 ![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
 ![Firebase](https://img.shields.io/badge/firebase-%23039BE5.svg?style=for-the-badge&logo=firebase)
-![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)
 ![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
 
-## Introduction
+> **A scalable, clean-architecture backend service designed to manage push notifications with real-time FCM integration.**
 
-**Notification Center API** is a robust backend service designed to manage and deliver push notifications with high reliability. Built using **NestJS** and following strictly typed **Clean Architecture** principles, this API serves as the secure bridge between your client applications and **Firebase Cloud Messaging (FCM)**.
+This project serves as a robust backend solution for mobile applications requiring reliable push notification delivery, secure user synchronization, and strict data validation.
 
-It ensures seamless user synchronization, secure authentication, and real-time message delivery, solving common consistency challenges in distributed systems.
+---
 
-## Key Features
+## 🏗 Architecture & Flow
 
--   **🛡️ Secure Endpoints:** Engineered with a custom `AuthGuard` that validates strictly typed Firebase ID Tokens. Unauthenticated access is rejected at the door.
--   **🔄 Defensive User Sync:** Implements a "fail-safe" synchronization strategy. If a notification is requested for a user who hasn't completed the initial handshake, the system automatically creates a placeholder user record, preventing Foreign Key (`P2003`) violations and ensuring the notification flow never breaks.
--   **🚀 FCM Push Notifications:** Integrated directly with the Firebase Admin SDK to provide low-latency, real-time push notifications to iOS and Android devices.
--   **📑 Interactive Documentation:** Fully documented with **OpenAPI (Swagger)**. Developers can explore schemas, DTOs, and test all endpoints directly from the browser without needing external tools like Postman.
+The system follows a strict data flow ensuring security and integrity at every step.
 
-## Tech Stack
-
--   **Framework:** [NestJS](https://nestjs.com/) (Node.js) - *Efficiency & Scalability*
--   **Language:** TypeScript - *Type Safety*
--   **Database:** SQLite3 - *Lightweight & Fast*
--   **ORM:** [Prisma Client](https://www.prisma.io/) - *Type-safe Database Access*
--   **Cloud Services:** Firebase Admin SDK - *Auth & Cloud Messaging*
--   **Documentation:** Swagger UI (`@nestjs/swagger`)
-
-## Project Structure
-
-The project follows a modular structure where each domain is encapsulated in its own module:
-
-```bash
-src/
-├── app.module.ts              # Root application module
-├── main.ts                    # Entry point & Global ValidationPipe
-├── auth/                      # Authentication Domain
-│   ├── dto/                   # Data Transfer Objects (SyncTokenDto)
-│   ├── auth.guard.ts          # Firebase Bearer Token Guard
-│   ├── auth.controller.ts     # User Sync Endpoints
-│   └── auth.service.ts        # Business Logic
-├── notification/              # Notification Domain
-│   ├── dto/                   # CreateNotificationDto
-│   ├── notification.controller.ts # API Endpoints (Send/Create)
-│   └── notification.service.ts    # Logic & FCM Integration
-├── firebase/                  # Shared Firebase Module
-│   └── firebase.module.ts     # Admin SDK Configuration
-└── prisma/                    # Database Module
-    └── prisma.service.ts      # Connection Management
+```mermaid
+graph LR
+    Client[Mobile App] -->|Bearer Token| Guard[Auth Guard]
+    Guard -->|Verify ID Token| Firebase[Firebase Auth]
+    Firebase -->|Decoded UID| Guard
+    Guard -->|Validated Request| Controller[API Controller]
+    Controller -->|DTO Validation| Pipe[Validation Pipe]
+    Pipe -->|Safe Data| Service[Notification Service]
+    Service -->|Sync User| DB[(SQLite / Prisma)]
+    Service -->|Send Push| FCM[Firebase Cloud Messaging]
+    FCM -->|Notification| Client
 ```
 
-## Installation & Setup
+---
 
-Follow these steps to get the server running locally.
+## 🌟 API Documentation (The Showoff)
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/alpertas/notification-center-api.git
-cd notification-center-api
-```
+We believe in **Interactive Documentation**. You don't need external tools to test our API.
+
+### Interactive API Docs
+
+The entire API is documented using **Swagger (OpenAPI)**. You can visualize schemas, test endpoints, and see example responses directly in your browser.
+
+👉 **Live Demo:** [http://localhost:3000/api](http://localhost:3000/api)
+
+![Swagger UI Screenshot]([SWAGGER_SCREENSHOT])
+
+> **Note:** All endpoints are protected. You must provide a valid Firebase ID Token via the "Authorize" button (Bearer Auth) to interact with the API.
+
+---
+
+## 🔥 Key Features
+
+-   **Modular Architecture:** Separation of concerns with dedicated `Auth` and `Notification` modules, ensuring maintainability and scalability.
+-   **Type-Safe Database:** Leverages **Prisma ORM** for fully type-safe database access, including specific Enums like `DeliveryStatus` (PENDING, SENT, FAILED).
+-   **Security First:** Implements a custom **AuthGuard** that verifies Firebase ID Tokens at the middleware level, rejecting unauthorized requests before they reach the business logic.
+-   **Data Integrity:** incoming requests are validated using `class-validator` and `class-transformer`. Invalid data (e.g., short titles or missing tokens) is automatically rejected with `400 Bad Request`.
+-   **Defensive User Sync:** The system automatically handles user synchronization. If a notification is sent to a user not yet in the local DB, the system creates a placeholder record on-the-fly to prevent Foreign Key errors.
+-   **Robust Error Handling:** Global exception filters and comprehensive logging ensure that issues are tracked without crashing the service.
+
+---
+
+## 💾 Database Schema
+
+The project uses **SQLite** with **Prisma**. Below is a high-level overview of the data models.
+
+| User | Type | Description |
+| :--- | :--- | :--- |
+| `id` | String | **PK**. Maps to Firebase UID. |
+| `email` | String | Unique email address. |
+| `fcmToken` | String? | Firebase Cloud Messaging device token. |
+| `notifications` | Relation | One-to-many relationship with Notification. |
+
+| Notification | Type | Description |
+| :--- | :--- | :--- |
+| `id` | String | **PK**. UUID. |
+| `title` | String | Notification title. |
+| `body` | String | Notification message body. |
+| `deliveryStatus` | String | Status Enum (`PENDING`, `SENT`, `FAILED`). |
+| `userId` | String | **FK**. Links to User. |
+
+---
+
+## 🚀 Installation & Setup
+
+### 1. Prerequisites
+-   Node.js (v18+)
+-   npm or yarn
 
 ### 2. Install Dependencies
 ```bash
@@ -68,54 +92,61 @@ npm install
 ```
 
 ### 3. Environment Configuration
-Create a `.env` file in the root directory and configure the following variables:
+Create a `.env` file in the root directory:
 
 ```env
-# Database connection string for SQLite
+# Database
 DATABASE_URL="file:./dev.db"
 
-# Path to your Firebase Service Account JSON
-GOOGLE_APPLICATION_CREDENTIALS="./service-account.json"
-
-# Server Port
+# Server
 PORT=3000
+
+# Firebase Service Account
+GOOGLE_APPLICATION_CREDENTIALS="./service-account.json"
 ```
 
-> **Note:** You must download your `service-account.json` from the [Firebase Console](https://console.firebase.google.com/) (Project Settings > Service Accounts) and place it in the project root.
+> **Important:** Download your `service-account.json` from the Firebase Console and place it in the root directory.
 
-### 4. Database Migration
-Initialize the SQLite database and generate the Prisma Client types:
-
+### 4. Database Setup
 ```bash
+# Run migrations
 npx prisma migrate dev --name init
+
+# Generate Prisma Client
 npx prisma generate
 ```
 
-### 5. Running the Application
-
-**Development Mode:**
+### 5. Run the Server
 ```bash
+# Development
 npm run start:dev
-```
 
-**Production Mode:**
-```bash
+# Production
 npm run build
 npm run start:prod
 ```
 
-## API Documentation
+---
 
-Once the server is running, you can access the interactive Swagger documentation at:
+## 📂 Project Structure
 
-👉 **http://localhost:3000/api**
-
-### Available Endpoints
-
--   **POST** `/auth/sync-token`: Sync FCM token for a user.
--   **POST** `/notifications`: Create a notification in the database (Status: PENDING).
--   **POST** `/notifications/send`: Create and immediately trigger a Push Notification via FCM (Status: SENT).
--   **GET** `/notifications`: Retrieve notification history for the logged-in user.
+```bash
+src/
+├── app.module.ts            # Root Module
+├── main.ts                  # Entry Point (Swagger & Global Pipes)
+├── auth/                    # Authentication Module
+│   ├── auth.controller.ts   # Sync Token Endpoints
+│   ├── auth.guard.ts        # Firebase Token Validation
+│   └── dto/                 # SyncTokenDto
+├── notification/            # Notification Module
+│   ├── notification.controller.ts
+│   ├── notification.service.ts # FCM Integration & DB Logic
+│   ├── dto/                 # CreateNotificationDto
+│   └── enums/               # DeliveryStatus Enum
+├── firebase/                # Shared Firebase Module
+└── prisma/                  # Database Connection Module
+```
 
 ---
-*Designed with modularity and developer experience in mind.*
+
+_Crafted with ❤️ by a Senior Backend Developer_
